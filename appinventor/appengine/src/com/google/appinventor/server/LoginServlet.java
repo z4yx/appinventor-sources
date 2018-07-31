@@ -300,8 +300,15 @@ public class LoginServlet extends HttpServlet {
         return;
       }
       String link = trimPage(req) + pwData.id + "/setpw";
-      sendmail(email, link, locale);
-      resp.sendRedirect("/login/linksent/");
+
+      User user = storageIo.getUserFromEmail(email);
+      String hash = user.getPassword();
+      if ((hash == null) || hash.equals("")) { //User is not existed
+        resp.sendRedirect(link);
+      }else{ //Existing user, reset password
+        sendmail(email, link, locale);
+        resp.sendRedirect("/login/linksent/");
+      }
       storageIo.cleanuppwdata();
       return;
     } else if (page.equals("setpw")) {
